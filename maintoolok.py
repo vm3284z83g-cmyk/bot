@@ -1,3 +1,4 @@
+import os
 import discord
 from discord import app_commands
 
@@ -10,7 +11,7 @@ class MyBot(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
-        # 因為第一階段按鈕需要動態產生樓層，我們只要註冊 StatusView 確保按鈕永久有效
+        # 註冊 StatusView 確保按鈕永久有效
         self.add_view(StatusView(floor=""))
         await self.tree.sync()
         print("已同步斜線指令與按鈕監聽！")
@@ -37,9 +38,10 @@ class StatusView(discord.ui.View):
         await self.send_report(interaction, "垃圾桶故障")
 
     async def send_report(self, interaction: discord.Interaction, status: str):
+        # 修正：將字串合併在同一行，避免 SyntaxError
         await interaction.response.send_message(f"已收到回報：**{self.floor} - {status}**！已通知管理者。", ephemeral=True)
 
-        # 管理員 ID 清單 (可填入多位管理員)
+        # 管理員 ID 清單
         ADMIN_USER_IDS = [1506627795038634075]
         for admin_id in ADMIN_USER_IDS:
             try:
@@ -92,7 +94,7 @@ async def post_panel(interaction: discord.Interaction):
         "*(所有回報與介面皆為私人顯示，僅您與管理者可見)*"
     )
     await interaction.response.send_message("通報說明已成功發布！", ephemeral=True)
-    
-import os
-# 這樣就可以安全地從 Render 的環境變數中讀取 Token，不用寫死在程式碼裡
-client.run(os.environ.get('DISCORD_TOKEN'))
+
+# 安全地從 Render 環境變數讀取 Token
+TOKEN = os.environ.get('DISCORD_TOKEN')
+client.run(TOKEN)
